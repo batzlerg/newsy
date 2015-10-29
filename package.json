@@ -1,0 +1,28 @@
+{
+  "name": "newsy",
+  "version": "1.0.0",
+  "description": "Use newsy to instantiate dynamic dependencies",
+  "main": "newsy.js",
+  "scripts": {
+    "test": "node node_modules/.bin/mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/antialias/newsy.git"
+  },
+  "keywords": [
+    "dependnecy",
+    "dependencies",
+    "instantiation",
+    "injection"
+  ],
+  "author": "Thomas Hallock",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/antialias/newsy/issues"
+  },
+  "homepage": "https://github.com/antialias/newsy",
+  "devDependencies": {
+    "mocha": "^2.3.3"
+  }
+}
