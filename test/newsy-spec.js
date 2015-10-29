@@ -1,6 +1,7 @@
 "use strict";
 var newsy = require('../newsy');
 var assert = require('assert');
+var path = require('path');
 describe('newsy', function () {
     var TestConstructor;
     var TestDependency;
@@ -121,5 +122,11 @@ describe('newsy', function () {
         it('should actually run the constructor', function () {
             assert(testInstance.constructed);
         });
+    });
+    it('should use the global registry when present', function () {
+        var modpath = path.resolve(__dirname + "/../newsy.js");
+        require.cache[modpath] = undefined;
+        global.__newsyRegistry__ = {'testglobal': {originalConstructor: 'foo bar foo'}};
+        assert.equal(require('../').getConstructor('testglobal'), 'foo bar foo');
     });
 });

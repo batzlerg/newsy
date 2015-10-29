@@ -12,16 +12,16 @@ var newsy = module.exports = function (key) {
     }
     return newsy._registry[key].build(Array.prototype.splice.call(arguments, 1));
 };
-newsy._registry = {};
+newsy._registry = global.__newsyRegistry__ = global.__newsyRegistry__ || {};
 // saves the current registry onto the private registryStack, and exposes a new registry. Only useful for testing
 newsy.newRegistry = function () {
     registryStack.push(newsy._registry);
-    newsy._registry = {};
+    global.__newsyRegistry__ = newsy._registry = {};
 };
 
 // pops the top of registryStack onto the current registry, replacing what was already there.
 newsy.restoreRegistry = function () {
-    newsy._registry = registryStack.pop();
+    global.__newsyRegistry__ = newsy._registry = registryStack.pop();
 };
 
 // Registers a new constructor to be associated with a key.
