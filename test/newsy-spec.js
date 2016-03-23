@@ -34,9 +34,9 @@ describe('newsy', function () {
         };
         newsy.newRegistry();
         newsy.register(Foo);
-        assert(newsy._registry.Foo);
+        assert(newsy.getRegistry().Foo);
         newsy.newRegistry();
-        assert(!newsy._registry.Foo);
+        assert(!newsy.getRegistry().Foo);
         newsy.restoreRegistry();
         newsy.restoreRegistry();
     });
@@ -51,8 +51,8 @@ describe('newsy', function () {
         it('should register an array of constructors', function () {
             newsy.newRegistry();
             newsy.register([TestConstructor, TestDependency]);
-            assert(newsy._registry.TestConstructor);
-            assert(newsy._registry.TestDependency);
+            assert(newsy.getRegistry().TestConstructor);
+            assert(newsy.getRegistry().TestDependency);
             newsy.restoreRegistry();
         });
     });

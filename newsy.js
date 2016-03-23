@@ -3,12 +3,6 @@
 // Builds a new instance of the constructor from the given key, with additional arguments passed to the contructor.
 // @param {string} key - the key that was associated with the constructor in a prior call to register
 var registryStack = [];
-var getRegistry = function () {
-    return global.__newsyRegistry__;
-};
-var setRegistry = function (registry) {
-    global.__newsyRegistry__ = registry;
-};
 var newsy = module.exports = function (key) {
     if (!getRegistry()[key]) {
         throw new Error(key + " is not a registered constructor");
@@ -17,6 +11,12 @@ var newsy = module.exports = function (key) {
         throw new Error(key + " has unmet dependencies: " + Object.keys(getRegistry()[key].unsatisfiedDependencies).join(", "));
     }
     return getRegistry()[key].build(Array.prototype.splice.call(arguments, 1));
+};
+var getRegistry = newsy.getRegistry = function () {
+    return global.__newsyRegistry__;
+};
+var setRegistry = newsy.setRegistry = function (registry) {
+    global.__newsyRegistry__ = registry;
 };
 setRegistry(global.__newsyRegistry__ || {});
 // saves the current registry onto the private registryStack, and exposes a new registry. Only useful for testing
