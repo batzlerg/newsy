@@ -3,25 +3,31 @@
 // Builds a new instance of the constructor from the given key, with additional arguments passed to the contructor.
 // @param {string} key - the key that was associated with the constructor in a prior call to register
 var registryStack = [];
+var getRegistry = function () {
+    return global.__newsyRegistry__;
+};
+var setRegistry = function (registry) {
+    global.__newsyRegistry__ = registry;
+};
 var newsy = module.exports = function (key) {
-    if (!newsy._registry[key]) {
+    if (!getRegistry()[key]) {
         throw new Error(key + " is not a registered constructor");
     }
-    if (newsy._registry[key].unsatisfiedDependencies) {
-        throw new Error(key + " has unmet dependencies: " + Object.keys(newsy._registry[key].unsatisfiedDependencies).join(", "));
+    if (getRegistry()[key].unsatisfiedDependencies) {
+        throw new Error(key + " has unmet dependencies: " + Object.keys(getRegistry()[key].unsatisfiedDependencies).join(", "));
     }
-    return newsy._registry[key].build(Array.prototype.splice.call(arguments, 1));
+    return getRegistry()[key].build(Array.prototype.splice.call(arguments, 1));
 };
-newsy._registry = global.__newsyRegistry__ = global.__newsyRegistry__ || {};
+setRegistry(global.__newsyRegistry__ || {});
 // saves the current registry onto the private registryStack, and exposes a new registry. Only useful for testing
 newsy.newRegistry = function () {
-    registryStack.push(newsy._registry);
-    global.__newsyRegistry__ = newsy._registry = {};
+    registryStack.push(getRegistry());
+    setRegistry({});
 };
 
 // pops the top of registryStack onto the current registry, replacing what was already there.
 newsy.restoreRegistry = function () {
-    global.__newsyRegistry__ = newsy._registry = registryStack.pop();
+    setRegistry(registryStack.pop());
 };
 
 // Registers a new constructor to be associated with a key.
@@ -49,7 +55,7 @@ newsy.register = function (constructor, key) {
     if (!key) {
         throw new Error("constructor does not have a newsy name. Specify it as static.newsy or static.newsy.name, or as the second argument to newsy.register");
     }
-    registration = newsy._registry[key] = {
+    registration = getRegistry()[key] = {
         build: function (args) {
             function F() {
                 return constructor.apply(this, args);
@@ -64,7 +70,7 @@ newsy.register = function (constructor, key) {
     if (constructor.newsy && constructor.newsy.builds) {
         for (dependencyIndex = 0; dependencyIndex < constructor.newsy.builds.length; ++dependencyIndex) {
             dependencyKey = constructor.newsy.builds[dependencyIndex];
-            if (!newsy._registry[dependencyKey]) {
+            if (!getRegistry()[dependencyKey]) {
                 if (!registration.unsatisfiedDependencies) {
                     registration.unsatisfiedDependencies = {};
                 }
@@ -87,7 +93,7 @@ newsy.getConstructor = function (options) {
     if (!options.key) {
         throw new Error('constructor key required for getConstructor');
     }
-    Constructor = newsy._registry[options.key];
+    Constructor = getRegistry()[options.key];
     Constructor = (Constructor && Constructor.originalConstructor) || options.defaultConstructor;
     if (!Constructor) {
         throw new Error("No constructor for key " + options.key);
@@ -103,20 +109,20 @@ newsy._dependencySatisfied = function (key) {
     var newUnsatisfiedDependencies;
     var oldUnsatisfiedDependencies;
     // iterate through all the registered constructors
-    for (registryKey in newsy._registry) {
-        if (newsy._registry.hasOwnProperty(registryKey)) {
-            if (!newsy._registry[registryKey].unsatisfiedDependencies) {
+    for (registryKey in getRegistry()) {
+        if (getRegistry().hasOwnProperty(registryKey)) {
+            if (!getRegistry()[registryKey].unsatisfiedDependencies) {
                 // registryKey has no unsatisfied dependencies to begin with
                 continue;
             }
-            if (!newsy._registry[registryKey].unsatisfiedDependencies[key]) {
+            if (!getRegistry()[registryKey].unsatisfiedDependencies[key]) {
                 // key was not a dependency of registryKey to begin with
                 continue;
             }
             // remove key as a dependency of registryKey
-            newsy._registry[registryKey].unsatisfiedDependencies[key] = false;
+            getRegistry()[registryKey].unsatisfiedDependencies[key] = false;
             newUnsatisfiedDependencies = {};
-            oldUnsatisfiedDependencies = newsy._registry[registryKey].unsatisfiedDependencies;
+            oldUnsatisfiedDependencies = getRegistry()[registryKey].unsatisfiedDependencies;
             anyAreTrue = false;
             for (dependencyKey in oldUnsatisfiedDependencies) {
                 if (oldUnsatisfiedDependencies.hasOwnProperty(dependencyKey)) {
@@ -129,10 +135,10 @@ newsy._dependencySatisfied = function (key) {
             // if none of the dependencies are true, adjust the entire depenency graph to reflect this
             if (anyAreTrue) {
                 // registryKey still has unsatisfied dependencies
-                newsy._registry[registryKey].unsatisfiedDependencies = newUnsatisfiedDependencies;
+                getRegistry()[registryKey].unsatisfiedDependencies = newUnsatisfiedDependencies;
                 continue;
             }
-            newsy._registry[registryKey].unsatisfiedDependencies = undefined;
+            getRegistry()[registryKey].unsatisfiedDependencies = undefined;
             // all of registryKey's dependencies have been satisfied, so everything that depends on it can now remove registryKey as a dependency
             newsy._dependencySatisfied(registryKey);
         }
