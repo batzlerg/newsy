@@ -28,7 +28,6 @@ newsy.restoreRegistry = function () {
 // @param {String} key - key with with the constructor will be associated
 // @param {Constructor} constructor - constructor that will be assocaited with the key
 newsy.register = function (constructor, key) {
-    var key;
     var dependencyIndex;
     var dependencyKey;
     var registration;
