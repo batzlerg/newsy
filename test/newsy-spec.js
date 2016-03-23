@@ -124,8 +124,8 @@ describe('newsy', function () {
         });
     });
     it('should use the global registry when present', function () {
-        var modpath = path.resolve(__dirname + "/../newsy.js");
-        require.cache[modpath] = undefined;
+        require.cache[path.resolve("./../newsy.js")] = undefined;
+        require.cache[path.resolve("../")] = undefined;
         global.__newsyRegistry__ = {'testglobal': {originalConstructor: 'foo bar foo'}};
         assert.equal(require('../').getConstructor('testglobal'), 'foo bar foo');
     });
