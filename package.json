@@ -1,6 +1,6 @@
 {
   "name": "newsy",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Use newsy to instantiate dynamic dependencies",
   "main": "newsy.js",
   "scripts": {
