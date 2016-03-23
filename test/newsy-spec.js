@@ -129,4 +129,13 @@ describe('newsy', function () {
         global.__newsyRegistry__ = {'testglobal': {originalConstructor: 'foo bar foo'}};
         assert.equal(require('../').getConstructor('testglobal'), 'foo bar foo');
     });
+    it('should use the name from the second argument when provided', function () {
+        newsy.register(TestDependency, 'alternate-name-test-dependency');
+        assert.strictEqual(newsy.getConstructor('alternate-name-test-dependency'), TestDependency);
+    });
+    it('should use the name from the second argument when provided even when the constructor does not have a newsy property', function () {
+        TestDependency.newsy = undefined;
+        newsy.register(TestDependency, 'alternate-name-test-dependency');
+        assert.strictEqual(newsy.getConstructor('alternate-name-test-dependency'), TestDependency);
+    });
 });

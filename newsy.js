@@ -27,7 +27,7 @@ newsy.restoreRegistry = function () {
 // Registers a new constructor to be associated with a key.
 // @param {String} key - key with with the constructor will be associated
 // @param {Constructor} constructor - constructor that will be assocaited with the key
-newsy.register = function (constructor) {
+newsy.register = function (constructor, key) {
     var key;
     var dependencyIndex;
     var dependencyKey;
@@ -39,16 +39,16 @@ newsy.register = function (constructor) {
         }
         return;
     }
-    if (!constructor.newsy) {
-        throw new Error("constructor does not have a 'newsy' property");
+    if (!constructor.newsy && !key) {
+        throw new Error("constructor does not have a 'newsy' property and no key was provided to newsy.register");
     }
-    if ("string" === typeof constructor.newsy) {
+    if (!key && "string" === typeof constructor.newsy) {
         key = constructor.newsy;
-    } else if (constructor.newsy.name) {
+    } else if (!key && constructor.newsy.name) {
         key = constructor.newsy.name;
     }
     if (!key) {
-        throw new Error("constructor does not have a newsy name. Specify it as static.newsy or static.newsy.name");
+        throw new Error("constructor does not have a newsy name. Specify it as static.newsy or static.newsy.name, or as the second argument to newsy.register");
     }
     registration = newsy._registry[key] = {
         build: function (args) {
@@ -62,7 +62,7 @@ newsy.register = function (constructor) {
         unsatisfiedDependencies: undefined
     };
     // build a truth map of the current unmet dependencies
-    if (constructor.newsy.builds) {
+    if (constructor.newsy && constructor.newsy.builds) {
         for (dependencyIndex = 0; dependencyIndex < constructor.newsy.builds.length; ++dependencyIndex) {
             dependencyKey = constructor.newsy.builds[dependencyIndex];
             if (!newsy._registry[dependencyKey]) {
