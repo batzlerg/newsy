@@ -5,29 +5,33 @@ environment in which the code runs. For example, a different subclass
 may be needed in .com versus Admin.
 
 ## Usage:
-
 MySubView.js:
+```
   MySubView = function() {...};
-  MySubView.newsy = 'MySubView'
-}
+  MySubView.newsy = 'MySubView';
+```
 project 1 entry file:
+```
   // BuyerSubViewConstructor inherits prototype and static from MySubView
   newsy.register(BuyerSubViewConstructor);
-
+```
 project 2 entry file:
+```
   // SellerSubViewConstructor inherits prototype and static from MySubView
   newsy.register(SellerSubViewConstructor);
-
+```
 In common parent view:
+```
   // We call newsy here to instantiate a BuyerSubViewConstructor or
   // SellerSubViewConstructor depending on which MySubView subclass
   // constructor was registered in the entry file
   var mySubViewInstance = newsy('MySubView');
-
+```
 Dependencies can be declared and enforced per-constructor through a newsy
 property called 'builds':
 
 BuyerMainView.js:
+```
   var MainView = function () {
     newsy('MySubView');
   }
@@ -35,8 +39,8 @@ BuyerMainView.js:
     name: 'MainView',
     builds: ['MySubView'];
   }
-
-If newsy('MainView') is called before any constructor for MySubView is
+```
+If `newsy('MainView')` is called before any constructor for MySubView is
 registered, an exception will be thrown that declares the missing
 dependencies.
 
